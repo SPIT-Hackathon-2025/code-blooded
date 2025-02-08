@@ -109,20 +109,20 @@ function EditorPage() {
   };
 
   return (
-    <div className="container-fluid vh-100 d-flex flex-column">
-      <div className="row flex-grow-1">
+    <div className="container-fluid vh-100 d-flex flex-column"  style={{backgroundColor:'#111518'}}>
+      <div className="row flex-grow-1"  style={{backgroundColor:'#010101'}}>
         {/* Client Panel */}
-        <div className="col-md-2 bg-dark text-light d-flex flex-column">
+        <div className="col-md-2 text-light d-flex flex-column"  style={{backgroundColor:'#14151c'}}>
           <img
-            src="/images/codecast.png"
+            src="/images/logo.png"
             alt="Logo"
             className="img-fluid mx-auto"
-            style={{ maxWidth: "150px", marginTop: "-43px" }}
+            style={{ width: "300px", marginTop: "-45px", marginLeft:'30px' }}
           />
           <hr style={{ marginTop: "-3rem" }} />
 
           {/* Client List */}
-          <div className="d-flex flex-column flex-grow-1 overflow-auto">
+          <div className="d-flex flex-column flex-grow-1 overflow-auto" style={{backgroundColor:'#111518'}}>
             <span className="mb-2">Members</span>
             {clients.map((client) => (
               <Client key={client.socketId} username={client.username} />
@@ -132,10 +132,10 @@ function EditorPage() {
           <hr />
           {/* Buttons */}
           <div className="mt-auto mb-3">
-            <button className="btn btn-success w-100 mb-2" onClick={copyRoomId}>
+            <button className="btn w-100 mb-2" style={{fontFamily: "'Montserrat', sans-serif", backgroundColor:'#0ffaf3', borderRadius:'15px'}} onClick={copyRoomId}>
               Copy Room ID
             </button>
-            <button className="btn btn-danger w-100" onClick={leaveRoom}>
+            <button className="btn w-100" style={{fontFamily: "'Montserrat', sans-serif", borderColor:'#0ffaf3', backgroundColor:"#14151c", color:'#fff', borderRadius:'15px'}} onClick={leaveRoom}>
               Leave Room
             </button>
           </div>
@@ -144,7 +144,7 @@ function EditorPage() {
         {/* Editor Panel */}
         <div className="col-md-10 text-light d-flex flex-column">
           {/* Language Selector */}
-          <div className="bg-dark p-2 d-flex justify-content-end">
+          <div className="p-2 d-flex justify-content-end"  style={{backgroundColor:'#010101'}}>
             <select
               className="form-select w-auto"
               value={selectedLanguage}
