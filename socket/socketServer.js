@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import ACTIONS from "./Actions.js";
+import ACTIONS from "./Action.js";
 
 const userSocketMap = {};
 

@@ -7,12 +7,13 @@ import {
   removeUserFromTeam, 
   updateUserRole 
 } from "./teamController.js";
+import authenticatetoken from "../middlewares/authenticate.js";
 
 const router = express.Router();
 // Team management
-router.post("/create", createTeam);
-router.get("/:userId", getUserTeams);
-router.delete("/:teamId", deleteTeam);
+router.post("/create",authenticatetoken, createTeam);
+router.get("/",authenticatetoken, getUserTeams);
+router.delete("/:teamId",deleteTeam);
 
 // User management in team
 router.post("/add-user", addUserToTeam);

@@ -15,10 +15,8 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
-app.use("/team", teamRouter);
-app.use("/user", userRouter);
-app.use("/user", userteamRouter);
-
 app.use('/team',teamRouter)
 app.use('/user',userRouter)
 app.use('/userteam',userteamRouter)
+
+export default app;
