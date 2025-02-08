@@ -19,4 +19,6 @@ app.use("/team", teamRouter);
 app.use("/user", userRouter);
 app.use("/user", userteamRouter);
 
-export default app;
+app.use('/team',teamRouter)
+app.use('/user',userRouter)
+app.use('/userteam',userteamRouter)
