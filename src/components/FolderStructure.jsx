@@ -54,7 +54,7 @@ const FolderStructure = () => {
           <div key={item.name} className="folder-container">
             <div className="folder-item" onClick={() => toggleFolder(item.name)} style={{ paddingLeft: `${level * 15}px` }}>
               <span>{openFolders[item.name] ? "📂" : "📁"}</span> {item.name}
-              <button className="btn" style={{ zIndex: 1050, backgroundColor: "#0ffaf3", fontSize:"10px" }} onClick={(e) => { e.stopPropagation(); addFile(item.name); }}>📄Add File</button>
+              <button className="btn" style={{ zIndex: 1050, border: "1px solid #0ffaf3", fontSize:"10px",color:"white" }} onClick={(e) => { e.stopPropagation(); addFile(item.name); }}>📄Add File</button>
             </div>
             {openFolders[item.name] && <div className="folder-children">{renderFolderTree(item.children, level + 1)}</div>}
           </div>
