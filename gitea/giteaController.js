@@ -8,7 +8,7 @@ export const createFile = async (req, res) => {
       const { repoName, filePath, content, authorName, authorEmail } = req.body;
   
       const response = await axios.put(
-        `${GITEA_API_URL}/repos/your_username/${repoName}/contents/${filePath}`,
+        `${GITEA_API_URL}/repos/Veer-Parikh/${repoName}/contents/${filePath}`,
         {
           content: Buffer.from(content).toString("base64"), // Convert content to Base64
           message: `Created ${filePath}`,
