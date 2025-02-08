@@ -1,12 +1,13 @@
 import express from "express";
 import {
   createFile,
-  createFolder,
+//   createFolder,
   commitRepoChanges,
   commitChanges,
   fetchRepoContents,
   getCommits,
-  rollbackToCommit
+  rollbackToCommit,
+  fetchRepoContent
 } from './giteaController.js'
 
 const router = express.Router();
@@ -14,8 +15,8 @@ const router = express.Router();
 // Route to create a file in a repo
 router.post("/create-file", createFile);
 
-// Route to create a folder in a repo
-router.post("/create-folder", createFolder);
+// // Route to create a folder in a repo
+// router.post("/create-folder", createFolder);
 
 // Route to commit multiple changes to a repo
 router.post("/commit-repo", commitRepoChanges);
@@ -34,6 +35,8 @@ router.get("/fetch-repo/:owner/:repo", async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+router.get('/fetch/:repoName',fetchRepoContent)
 
 router.get("/commits/:owner/:repo", getCommits);
 
