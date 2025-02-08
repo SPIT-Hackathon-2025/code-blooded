@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = ".."; // Replace with your API key
+const API_KEY = "AIzaSyBPbigdbFxpvc9vISE2jvhJpu1r_RTxlqs"; // Replace with your API key
 
 function CommitModal({ show, handleClose, code }) {
   const [commitMessage, setCommitMessage] = useState("");
@@ -33,15 +33,16 @@ function CommitModal({ show, handleClose, code }) {
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered>
-      <Modal.Header closeButton>
+    <Modal show={show} onHide={handleClose} centered style={{ color:"white"}}>
+      <Modal.Header closeButton style={{backgroundColor:"#14151c", color:"white"}} >
         <Modal.Title>Commit Changes</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        <Form>
-          <Form.Group className="mb-3">
+      <Modal.Body style={{backgroundColor:"#14151c", color:"white"}}>
+        <Form >
+          <Form.Group style={{}} className="mb-3" >
             <Form.Label>Commit Message</Form.Label>
             <Form.Control
+            style={{backgroundColor:"#14151c", color:"white"}}
               type="text"
               placeholder="Enter a commit message"
               value={commitMessage}
@@ -49,6 +50,7 @@ function CommitModal({ show, handleClose, code }) {
             />
           </Form.Group>
           <Button
+          style={{backgroundColor:"#0ffaf3", border:0, color:"#010101"}}
             variant="secondary"
             className="w-100 mb-2"
             onClick={generateCommitMessage}
@@ -58,11 +60,14 @@ function CommitModal({ show, handleClose, code }) {
           </Button>
         </Form>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="danger" onClick={handleClose}>
+      <Modal.Footer style={{backgroundColor:"#14151c", color:"white"}}>
+        <Button variant="danger" onClick={handleClose}
+         style={{backgroundColor:"#0ffaf3", border:0, color:"#010101"}}
+        >
           Cancel
         </Button>
-        <Button variant="primary" onClick={() => console.log("Commit: ", commitMessage)}>
+        <Button variant="primary" onClick={() => console.log("Commit: ", commitMessage)}
+           style={{backgroundColor:"#0ffaf3", border:0, color:"#010101"}}>
           Commit
         </Button>
       </Modal.Footer>
