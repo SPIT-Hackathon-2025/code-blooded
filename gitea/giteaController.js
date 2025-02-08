@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const GITEA_API_URL = "http://localhost:3000/api/v1";
 const GITEA_TOKEN = process.env.GITEA_TOKEN; 
 
