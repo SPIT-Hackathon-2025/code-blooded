@@ -1,11 +1,13 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   createFile,
   createFolder,
   commitRepoChanges,
   commitChanges,
   fetchRepoContents,
-} = require("../controllers/giteaController");
+  getCommits,
+  rollbackToCommit
+} from './giteaController.js'
 
 const router = express.Router();
 
@@ -33,9 +35,9 @@ router.get("/fetch-repo/:owner/:repo", async (req, res) => {
   }
 });
 
-router.get("/commits/:owner/:repo", getAllCommits);
+router.get("/commits/:owner/:repo", getCommits);
 
 router.post("/rollback", rollbackToCommit);
 
 
-module.exports = router;
+export default router;
