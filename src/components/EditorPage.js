@@ -358,7 +358,7 @@ function EditorPage() {
       <div className="col-8 d-flex flex-column text-light">
         {/* Language Selector */}
         <div className="p-2 d-flex justify-content-between align-items-center" style={{ backgroundColor: "#010101" }}>
-          <button className="btn" style={{ backgroundColor: "#0ffaf3", fontSize: "14px", fontWeight: 500 }} onClick={() => setIsModalOpen(true)}>
+          <button className="btn" style={{ backgroundColor: "#0ffaf3", fontSize: "14px", fontWeight: 500, color:"black" }} onClick={() => setIsModalOpen(true)}>
             Commit Changes
           </button>
   
