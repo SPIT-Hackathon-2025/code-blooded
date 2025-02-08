@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import Client from "./Client";
-import Editor from "./Editor";
+import Editor from "./MonacoEditor";
 import { initSocket } from "../Socket";
 import { ACTIONS } from "../Actions";
+import { executeCode } from "../api";
+import { LANGUAGE_VERSIONS } from "../constants";
 import {
   useNavigate,
   useLocation,
@@ -10,119 +12,93 @@ import {
   useParams,
 } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import axios from "axios";
 
 // List of supported languages
-const LANGUAGES = [
-  "python3",
-  "java",
-  "cpp",
-  "nodejs",
-  "c",
-  "ruby",
-  "go",
-  "scala",
-  "bash",
-  "sql",
-  "pascal",
-  "csharp",
-  "php",
-  "swift",
-  "rust",
-  "r",
-];
+const LANGUAGES = Object.keys(LANGUAGE_VERSIONS);
 
 function EditorPage() {
   const [clients, setClients] = useState([]);
   const [output, setOutput] = useState("");
   const [isCompileWindowOpen, setIsCompileWindowOpen] = useState(false);
   const [isCompiling, setIsCompiling] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("python3");
-  const codeRef = useRef(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("python");
 
-  const Location = useLocation();
+  const codeRef = useRef(null);
+  const location = useLocation();
   const navigate = useNavigate();
   const { roomId } = useParams();
-
   const socketRef = useRef(null);
 
   useEffect(() => {
     const init = async () => {
       socketRef.current = await initSocket();
-      socketRef.current.on("connect_error", (err) => handleErrors(err));
-      socketRef.current.on("connect_failed", (err) => handleErrors(err));
+      socketRef.current.on("connect_error", handleErrors);
+      socketRef.current.on("connect_failed", handleErrors);
 
-      const handleErrors = (err) => {
-        console.log("Error", err);
-        toast.error("Socket connection failed, Try again later");
+      function handleErrors(err) {
+        console.error("Socket Error:", err);
+        toast.error("Socket connection failed. Try again later.");
         navigate("/");
-      };
+      }
 
       socketRef.current.emit(ACTIONS.JOIN, {
         roomId,
-        username: Location.state?.username,
+        username: location.state?.username,
       });
 
-      socketRef.current.on(
-        ACTIONS.JOINED,
-        ({ clients, username, socketId }) => {
-          if (username !== Location.state?.username) {
-            toast.success(`${username} joined the room.`);
-          }
-          setClients(clients);
-          socketRef.current.emit(ACTIONS.SYNC_CODE, {
-            code: codeRef.current,
-            socketId,
-          });
+      socketRef.current.on(ACTIONS.JOINED, ({ clients, username, socketId }) => {
+        if (username !== location.state?.username) {
+          toast.success(`${username} joined the room.`);
         }
-      );
+        setClients(clients);
+        socketRef.current.emit(ACTIONS.SYNC_CODE, {
+          code: codeRef.current,
+          socketId,
+        });
+      });
 
       socketRef.current.on(ACTIONS.DISCONNECTED, ({ socketId, username }) => {
         toast.success(`${username} left the room`);
-        setClients((prev) => {
-          return prev.filter((client) => client.socketId !== socketId);
-        });
+        setClients((prev) => prev.filter((client) => client.socketId !== socketId));
       });
     };
+
     init();
 
     return () => {
-      socketRef.current && socketRef.current.disconnect();
-      socketRef.current.off(ACTIONS.JOINED);
-      socketRef.current.off(ACTIONS.DISCONNECTED);
+      socketRef.current?.disconnect();
+      socketRef.current?.off(ACTIONS.JOINED);
+      socketRef.current?.off(ACTIONS.DISCONNECTED);
     };
-  }, []);
+  }, [navigate, roomId, location.state]);
 
-  if (!Location.state) {
+  if (!location.state) {
     return <Navigate to="/" />;
   }
 
   const copyRoomId = async () => {
     try {
       await navigator.clipboard.writeText(roomId);
-      toast.success(`Room ID is copied`);
+      toast.success("Room ID copied!");
     } catch (error) {
-      console.log(error);
-      toast.error("Unable to copy the room ID");
+      console.error("Copy failed:", error);
+      toast.error("Unable to copy the Room ID.");
     }
   };
 
-  const leaveRoom = async () => {
+  const leaveRoom = () => {
     navigate("/");
   };
 
   const runCode = async () => {
     setIsCompiling(true);
     try {
-      const response = await axios.post("http://localhost:5000/compile", {
-        code: codeRef.current,
-        language: selectedLanguage,
-      });
-      console.log("Backend response:", response.data);
-      setOutput(response.data.output || JSON.stringify(response.data));
+      const response = await executeCode(selectedLanguage, codeRef.current);
+      console.log("Execution response:", response);
+      setOutput(response.run?.output || "No output returned");
     } catch (error) {
-      console.error("Error compiling code:", error);
-      setOutput(error.response?.data?.error || "An error occurred");
+      console.error("Error executing code:", error);
+      setOutput("An error occurred while executing the code.");
     } finally {
       setIsCompiling(false);
     }
@@ -135,7 +111,7 @@ function EditorPage() {
   return (
     <div className="container-fluid vh-100 d-flex flex-column">
       <div className="row flex-grow-1">
-        {/* Client panel */}
+        {/* Client Panel */}
         <div className="col-md-2 bg-dark text-light d-flex flex-column">
           <img
             src="/images/codecast.png"
@@ -145,7 +121,7 @@ function EditorPage() {
           />
           <hr style={{ marginTop: "-3rem" }} />
 
-          {/* Client list container */}
+          {/* Client List */}
           <div className="d-flex flex-column flex-grow-1 overflow-auto">
             <span className="mb-2">Members</span>
             {clients.map((client) => (
@@ -165,9 +141,9 @@ function EditorPage() {
           </div>
         </div>
 
-        {/* Editor panel */}
+        {/* Editor Panel */}
         <div className="col-md-10 text-light d-flex flex-column">
-          {/* Language selector */}
+          {/* Language Selector */}
           <div className="bg-dark p-2 d-flex justify-content-end">
             <select
               className="form-select w-auto"
@@ -182,6 +158,7 @@ function EditorPage() {
             </select>
           </div>
 
+          {/* Code Editor */}
           <Editor
             socketRef={socketRef}
             roomId={roomId}
@@ -192,7 +169,7 @@ function EditorPage() {
         </div>
       </div>
 
-      {/* Compiler toggle button */}
+      {/* Compiler Toggle Button */}
       <button
         className="btn btn-primary position-fixed bottom-0 end-0 m-3"
         onClick={toggleCompileWindow}
@@ -201,11 +178,9 @@ function EditorPage() {
         {isCompileWindowOpen ? "Close Compiler" : "Open Compiler"}
       </button>
 
-      {/* Compiler section */}
+      {/* Compiler Output */}
       <div
-        className={`bg-dark text-light p-3 ${
-          isCompileWindowOpen ? "d-block" : "d-none"
-        }`}
+        className={`bg-dark text-light p-3 ${isCompileWindowOpen ? "d-block" : "d-none"}`}
         style={{
           position: "fixed",
           bottom: 0,
@@ -220,11 +195,7 @@ function EditorPage() {
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5 className="m-0">Compiler Output ({selectedLanguage})</h5>
           <div>
-            <button
-              className="btn btn-success me-2"
-              onClick={runCode}
-              disabled={isCompiling}
-            >
+            <button className="btn btn-success me-2" onClick={runCode} disabled={isCompiling}>
               {isCompiling ? "Compiling..." : "Run Code"}
             </button>
             <button className="btn btn-secondary" onClick={toggleCompileWindow}>
