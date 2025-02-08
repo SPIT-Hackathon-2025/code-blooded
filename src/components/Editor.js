@@ -1,66 +1,56 @@
-import React, { useEffect, useRef } from "react";
-import "codemirror/mode/javascript/javascript";
-import "codemirror/theme/dracula.css";
-import "codemirror/addon/edit/closetag";
-import "codemirror/addon/edit/closebrackets";
-import "codemirror/lib/codemirror.css";
-import CodeMirror from "codemirror";
+import React, { useEffect, useRef, useState } from "react";
+import { Editor } from "@monaco-editor/react";
 import { ACTIONS } from "../Actions";
 
-function Editor({ socketRef, roomId, onCodeChange }) {
+function MonacoEditor({ socketRef, roomId, onCodeChange }) {
   const editorRef = useRef(null);
-  useEffect(() => {
-    const init = async () => {
-      const editor = CodeMirror.fromTextArea(
-        document.getElementById("realtimeEditor"),
-        {
-          mode: { name: "javascript", json: true },
-          theme: "dracula",
-          autoCloseTags: true,
-          autoCloseBrackets: true,
-          lineNumbers: true,
-        }
-      );
-      // for sync the code
-      editorRef.current = editor;
+  const [value, setValue] = useState("");
 
-      editor.setSize(null, "100%");
-      editorRef.current.on("change", (instance, changes) => {
-        // console.log("changes", instance ,  changes );
-        const { origin } = changes;
-        const code = instance.getValue(); // code has value which we write
-        onCodeChange(code);
-        if (origin !== "setValue") {
-          socketRef.current.emit(ACTIONS.CODE_CHANGE, {
-            roomId,
-            code,
-          });
-        }
-      });
-    };
-
-    init();
-  }, []);
-
-  // data receive from server
   useEffect(() => {
     if (socketRef.current) {
       socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
-        if (code !== null) {
-          editorRef.current.setValue(code);
+        if (code !== null && code !== value) {
+          setValue(code);
         }
       });
     }
     return () => {
-      socketRef.current.off(ACTIONS.CODE_CHANGE);
+      if (socketRef.current) {
+        socketRef.current.off(ACTIONS.CODE_CHANGE);
+      }
     };
-  }, [socketRef.current]);
+  }, [socketRef, value]);
+
+  const handleEditorChange = (newValue) => {
+    setValue(newValue);
+    onCodeChange(newValue);
+    if (socketRef.current) {
+      socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+        roomId,
+        code: newValue,
+      });
+    }
+  };
 
   return (
     <div style={{ height: "600px" }}>
-      <textarea id="realtimeEditor"></textarea>
+      <Editor
+        options={{
+          minimap: { enabled: false },
+          automaticLayout: true,
+        }}
+        height="100%"
+        theme="vs-dark"
+        language="javascript"
+        value={value}
+        onChange={handleEditorChange}
+        onMount={(editor) => {
+          editorRef.current = editor;
+          editor.focus();
+        }}
+      />
     </div>
   );
 }
 
-export default Editor;
+export default MonacoEditor;
