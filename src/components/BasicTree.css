@@ -1,0 +1,31 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(to right, #1e293b, #0f172a);
+  }
+  
+  .card {
+    width: 400px;
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+  }
+  
+  .title {
+    margin-bottom: 24px;
+    text-align: center;
+    font-family: monospace;
+    font-size: 40px;
+    font-weight: bold;
+  }
+  

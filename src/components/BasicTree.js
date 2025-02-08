@@ -1,9 +1,15 @@
-import FolderTree, { testData } from "react-folder-tree";
+import "./BasicTree.css";
+import FolderTree from "./FolderTree";
 
-const BasicTree = () => {
-  const onTreeStateChange = (state) => console.log("tree state: ", state);
-
-  return <FolderTree data={testData} onChange={onTreeStateChange} />;
-};
+function BasicTree() {
+  return (
+    <div className="container">
+      <div className="card">
+        <h1 className="title">Folder Tree</h1>
+        <FolderTree/>
+      </div>
+    </div>
+  );
+}
 
 export default BasicTree;
