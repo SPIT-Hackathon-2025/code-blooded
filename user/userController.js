@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 export const register = async(req,res) => {
     try{
         const { username,email,password,phone } = req.body;
+        console.log(req.body);
 
         // const existing = await prisma.user.findFirst({
         //     where:{
@@ -41,7 +42,7 @@ export const register = async(req,res) => {
         });
         res.json({message:"otp sent successfully",newUser});
     } catch(error){
-        console.log(err);
+        console.log(error);
         res.json({ error: "Failed to create user" });
     }
 }
@@ -72,22 +73,22 @@ export const loginUsingPassword = async (req,res)=> {
 
 export const loginUsingOTP = async (req,res) => {
     try {
-      const { number } = req.body;
+      const { phone } = req.body;
   
       const otp = generateOTP();
       const otpExpiration = getOtpExpiration();
   
-      const user = await prisma.user.findFirst({ where: { number } });
+      const user = await prisma.user.findFirst({ where: { phone } });
       if (!user) {
         res.status(404).json({ message: "User not found" });
       }
   
-      await prisma.user.update({
-        where: { number },
+      await prisma.user.updateMany({
+        where: { phone },
         data: { otp, otpExpiration },
       });
   
-      await sendOTP(number, otp);
+      await sendOTP(phone, otp);
       console.log("OTP sent");
       res.json({ message: "OTP sent successfully" });
     } catch (err) {
@@ -97,10 +98,10 @@ export const loginUsingOTP = async (req,res) => {
 };
 
 export const verify = async (req,res) => {
-    const { number, otp } = req.body;
+    const { phone, otp } = req.body;
   
     try {
-      const user = await prisma.user.findUnique({ where: { phone } });
+      const user = await prisma.user.findFirst({ where: { phone } });
       if (!user) {
         res.status(404).json({ message: "User not found" });
         return;
@@ -111,7 +112,7 @@ export const verify = async (req,res) => {
         return;
       }
   
-      await prisma.user.update({
+      await prisma.user.updateMany({
         where: { phone },
         data: { otp: null, otpExpiration: null },
       });
@@ -128,11 +129,10 @@ export const verify = async (req,res) => {
 
 export const getUsers = async (req,res) => {
     try {
-      const users = await prisma.user.findMany({
-        include:{Mentorship:true}
-      });
+      const users = await prisma.user.findMany();
       res.json(users);
     } catch (err) {
+      console.log(err)
       res.status(500).json({ error: "Failed to fetch users" });
     }
   };
@@ -144,7 +144,7 @@ export const getUser = async (req,res) => {
       const user = await prisma.user.findFirst({
         where: {
           OR: [
-            { number: identifier },
+            { phone: identifier },
             { email:{
                 contains:identifier
               }
@@ -169,27 +169,27 @@ export const getUser = async (req,res) => {
     }
   };
   
-export const myProfile = async (req,res)  => {
+export const myProfile = async (req, res) => {
     try {
-      const id = req.user?.id;
-      if (!id) {
-        res.status(401).json({ message: 'User not authenticated' });
-        return;
-      }
-  
-      const user = await prisma.user.findUnique({
-        where: { id },
-        include:{Mentorship:true}
-      });
-  
-      if (!user) {
-        res.status(404).json({ message: 'User not found' });
-        return;
-      }
-  
-      res.json(user);
+        const id = req.user?.id;
+        
+        if (!id) {
+            return res.status(401).json({ message: "User not authenticated" });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id },
+            include: { teams: true } 
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json(user);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to fetch profile' });
+        console.error("Error fetching profile:", error);
+        res.status(500).json({ error: "Failed to fetch profile" });
     }
 };
+
