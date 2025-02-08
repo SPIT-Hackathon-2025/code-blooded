@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  username      String
+  email         String     @unique
+  password      String
+  otp           String?
+  otpExpiration DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  teams         UserTeam[]
+}
+
+model Team {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  users     UserTeam[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model UserTeam {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  teamId String @db.ObjectId
+  role   Role   @default(VIEWER)
+
+  user User @relation(fields: [userId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+}
+
+enum Role {
+  EDITOR
+  VIEWER
+}
+
+model CodeDocument {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  roomId    String   @unique // Same as Liveblocks Room ID
+  content   String   // Stores the latest code version
+  language  String   // (Optional) Stores the programming language
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
