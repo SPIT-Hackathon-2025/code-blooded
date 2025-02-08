@@ -1,13 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
+import axios from "axios";
 
-/**
- * Create a new team
- */
+const GITEA_API_URL = "http://localhost:3000/api/v1";
+const GITEA_TOKEN = process.env.GITEA_TOKEN; 
+
 export const createTeam = async (req, res) => {
   try {
     const { name, userId } = req.body; // userId = team creator
 
+    // Create team in database
     const team = await prisma.team.create({
       data: {
         name,
@@ -21,12 +23,27 @@ export const createTeam = async (req, res) => {
       include: { users: true },
     });
 
-    return res.status(201).json(team);
+    // Create Gitea Repository for the Team
+    const repoName = `team-${team.id}`;
+    const giteaResponse = await axios.post(
+      `${GITEA_API_URL}/user/repos`,
+      {
+        name: repoName,
+        private: true,
+        description: `Repository for Team ${team.name}`,
+      },
+      {
+        headers: { Authorization: `token ${GITEA_TOKEN}` },
+      }
+    );
+
+    return res.status(201).json({ team, giteaRepo: giteaResponse.data });
   } catch (error) {
-    console.error("Error creating team:", error);
+    console.error("Error creating team/repo:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 /**
  * Get all teams for the logged-in user
