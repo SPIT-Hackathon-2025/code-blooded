@@ -1,15 +1,22 @@
-const express = require("express");
-const router = express.Router();
-const teamController = require("../controllers/teamController");
+import express from "express";
+import { 
+  createTeam, 
+  getUserTeams, 
+  deleteTeam, 
+  addUserToTeam, 
+  removeUserFromTeam, 
+  updateUserRole 
+} from "./teamController.js";
 
+const router = express.Router();
 // Team management
-router.post("/create", teamController.createTeam);
-router.get("/:userId", teamController.getUserTeams);
-router.delete("/:teamId", teamController.deleteTeam);
+router.post("/create", createTeam);
+router.get("/:userId", getUserTeams);
+router.delete("/:teamId", deleteTeam);
 
 // User management in team
-router.post("/add-user", teamController.addUserToTeam);
-router.post("/remove-user", teamController.removeUserFromTeam);
-router.post("/update-role", teamController.updateUserRole);
+router.post("/add-user", addUserToTeam);
+router.post("/remove-user", removeUserFromTeam);
+router.post("/update-role", updateUserRole);
 
-module.exports = router;
+export default router;

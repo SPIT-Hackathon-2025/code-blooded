@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { sendOTP, generateOTP, getOtpExpiration } from "../middlewares/otp";
+import { sendOTP, generateOTP, getOtpExpiration } from "../middlewares/otp.js";
 
 const prisma = new PrismaClient();
 

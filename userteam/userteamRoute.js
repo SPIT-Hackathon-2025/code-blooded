@@ -1,6 +1,6 @@
 import express from "express";
-import { assignUserToTeam, updateUserRole, getUsersByTeam, removeUserFromTeam } from "../controllers/userTeamController";
-import authenticatetoken from "../middlewares/authenticate";
+import { assignUserToTeam, updateUserRole, getUsersByTeam, removeUserFromTeam } from "./userteamController.js";
+import authenticatetoken from "../middlewares/authenticate.js";
 
 const router = express.Router();
 

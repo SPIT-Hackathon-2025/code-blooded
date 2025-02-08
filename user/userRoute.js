@@ -1,5 +1,5 @@
-import { register,getUser,getUsers,loginUsingOTP,loginUsingPassword,myProfile,verify } from ".Controller";
-import authenticatetoken from "../middlewares/authenticate";
+import { register,getUser,getUsers,loginUsingOTP,loginUsingPassword,myProfile,verify } from "./userController.js";
+import authenticatetoken from "../middlewares/authenticate.js";
 import { Router } from "express";
 
 const router = Router();
@@ -12,4 +12,4 @@ router.get("/", getUsers);
 router.post("/:identifier", getUser);
 router.get("/myProfile",authenticatetoken,myProfile)
 
-module.exports = router
+export default router;

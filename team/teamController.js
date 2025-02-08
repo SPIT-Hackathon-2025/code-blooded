@@ -1,10 +1,10 @@
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 /**
  * Create a new team
  */
-exports.createTeam = async (req, res) => {
+export const createTeam = async (req, res) => {
   try {
     const { name, userId } = req.body; // userId = team creator
 
@@ -31,7 +31,7 @@ exports.createTeam = async (req, res) => {
 /**
  * Get all teams for the logged-in user
  */
-exports.getUserTeams = async (req, res) => {
+export const getUserTeams = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -50,7 +50,7 @@ exports.getUserTeams = async (req, res) => {
 /**
  * Add a user to a team
  */
-exports.addUserToTeam = async (req, res) => {
+export const addUserToTeam = async (req, res) => {
   try {
     const { teamId, userId, role } = req.body;
 
@@ -67,14 +67,14 @@ exports.addUserToTeam = async (req, res) => {
     return res.status(200).json(team);
   } catch (error) {
     console.error("Error adding user:", error);
-    return res.status500().json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 /**
  * Remove a user from a team
  */
-exports.removeUserFromTeam = async (req, res) => {
+export const removeUserFromTeam = async (req, res) => {
   try {
     const { teamId, userId } = req.body;
 
@@ -92,7 +92,7 @@ exports.removeUserFromTeam = async (req, res) => {
 /**
  * Update a user's role in a team
  */
-exports.updateUserRole = async (req, res) => {
+export const updateUserRole = async (req, res) => {
   try {
     const { teamId, userId, role } = req.body;
 
@@ -111,7 +111,7 @@ exports.updateUserRole = async (req, res) => {
 /**
  * Delete a team (Only if no users are left or admin deletes)
  */
-exports.deleteTeam = async (req, res) => {
+export const deleteTeam = async (req, res) => {
   try {
     const { teamId } = req.params;
 
