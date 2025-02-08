@@ -14,5 +14,8 @@ app.use(express.json());
 const teamRouter = require('./team/teamRoute')
 app.use('/team',teamRouter)
 
+const userRouter = require('./user/userRoute')
+app.use('/user',userRouter)
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

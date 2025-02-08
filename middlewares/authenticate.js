@@ -8,7 +8,7 @@ const authenticatetoken=async(req,res,next)=>{
         if(token== null){
             return res.status(401)
         }
-        const decodedToken = jwt.verify(token, process.env.TOKEN_KEY);
+        const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
         req.user = decodedToken;
         next();
         

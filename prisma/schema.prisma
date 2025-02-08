@@ -18,6 +18,7 @@ model User {
   username      String
   email         String     @unique
   password      String
+  phone         String
   otp           String?
   otpExpiration DateTime?
   createdAt     DateTime   @default(now())
@@ -51,8 +52,8 @@ enum Role {
 model CodeDocument {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   roomId    String   @unique // Same as Liveblocks Room ID
-  content   String   // Stores the latest code version
-  language  String   // (Optional) Stores the programming language
+  content   String // Stores the latest code version
+  language  String // (Optional) Stores the programming language
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
