@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Client from "./Client";
-import Editor from "./Editor";
+import Editor from "./MonacoEditor";
 import { initSocket } from "../Socket";
 import { ACTIONS } from "../Actions";
 import { executeCode } from "../api";
@@ -48,7 +48,7 @@ function EditorPage() {
 
       socketRef.current.on(ACTIONS.JOINED, ({ clients, username, socketId }) => {
         if (username !== location.state?.username) {
-          toast.success(`${username} joined the room.`);
+          toast.success(${username} joined the room.);
         }
         setClients(clients);
         socketRef.current.emit(ACTIONS.SYNC_CODE, {
@@ -58,7 +58,7 @@ function EditorPage() {
       });
 
       socketRef.current.on(ACTIONS.DISCONNECTED, ({ socketId, username }) => {
-        toast.success(`${username} left the room`);
+        toast.success(${username} left the room);
         setClients((prev) => prev.filter((client) => client.socketId !== socketId));
       });
     };
@@ -180,7 +180,7 @@ function EditorPage() {
 
       {/* Compiler Output */}
       <div
-        className={`bg-dark text-light p-3 ${isCompileWindowOpen ? "d-block" : "d-none"}`}
+        className={bg-dark text-light p-3 ${isCompileWindowOpen ? "d-block" : "d-none"}}
         style={{
           position: "fixed",
           bottom: 0,
