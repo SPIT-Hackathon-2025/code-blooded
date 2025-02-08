@@ -3,19 +3,26 @@ import { Routes, Route } from "react-router-dom";
 import Home from './components/Home';
 import EditorPage from './components/EditorPage';
 import { Toaster } from 'react-hot-toast';
+import { TeamProvider } from './components/TeamContext';
+import { FileProvider } from './components/FileContext';
 
 
 function App() {
   return (
-    <div style={{backgroundColor:'#14151a'}}>
-    <div>
-      <Toaster  position='top-center'></Toaster>
-    </div>
-    <Routes>
-     <Route path='/' element={ <Home /> } />
-     <Route path='/editor/:roomId' element={ <EditorPage /> } />
-    </Routes>
-    </div>
+    <TeamProvider>
+      <FileProvider>
+        <div style={{ backgroundColor: '#14151a' }}>
+          <div>
+            <Toaster position='top-center'></Toaster>
+          </div>
+          <Routes>
+            <Route path='/editor/:roomId/:fileName' element={<EditorPage />} />
+            <Route path='/editor/:roomId' element={<EditorPage />} />
+            <Route path='/' element={<Home />} />
+          </Routes>
+        </div>
+      </FileProvider>
+    </TeamProvider>
   );
 }
 
