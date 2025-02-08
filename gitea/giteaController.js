@@ -180,4 +180,38 @@ export const fetchRepoContents = async (owner, repo, path = "") => {
     }
 };
 
+export const getCommits = async (req, res) => {
+  try {
+      const { owner, repo } = req.params;
+
+      const response = await axios.get(
+          `${GITEA_API_URL}/repos/${owner}/${repo}/commits`,
+          { headers: { Authorization: `token ${GITEA_TOKEN}` } }
+      );
+
+      return res.status(200).json(response.data);
+  } catch (error) {
+      console.error("Error fetching commits:", error.response?.data || error.message);
+      return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const rollbackToCommit = async (req, res) => {
+  try {
+      const { owner, repo, commitSha } = req.body;
+
+      // Update branch to the previous commit
+      await axios.patch(
+          `${GITEA_API_URL}/repos/${owner}/${repo}/git/refs/heads/master`,
+          { sha: commitSha, force: true },
+          { headers: { Authorization: `token ${GITEA_TOKEN}` } }
+      );
+
+      return res.status(200).json({ message: `Rolled back to commit ${commitSha}` });
+  } catch (error) {
+      console.error("Error rolling back:", error.response?.data || error.message);
+      return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 

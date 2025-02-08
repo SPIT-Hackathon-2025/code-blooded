@@ -33,4 +33,9 @@ router.get("/fetch-repo/:owner/:repo", async (req, res) => {
   }
 });
 
+router.get("/commits/:owner/:repo", getAllCommits);
+
+router.post("/rollback", rollbackToCommit);
+
+
 module.exports = router;
