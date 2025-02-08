@@ -15,10 +15,8 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
+app.use("/team", teamRouter);
+app.use("/user", userRouter);
+app.use("/user", userteamRouter);
 
-app.use('/team',teamRouter)
-app.use('/user',userRouter)
-app.use('/user',userteamRouter)
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+export default app;
