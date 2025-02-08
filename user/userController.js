@@ -36,7 +36,7 @@ export const register = async(req,res) => {
 
         await sendOTP(phone, otp);
 
-        const token = jwt.sign({ userId: newUser.id }, process.env.SECRET_KEY, {
+        const token = jwt.sign({ id: newUser.id }, process.env.SECRET_KEY, {
             expiresIn: "7d",
         });
         res.json({message:"otp sent successfully",newUser});
