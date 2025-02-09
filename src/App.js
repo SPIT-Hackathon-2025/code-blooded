@@ -25,7 +25,8 @@ function App() {
           <Routes>
             <Route path='/editor/:roomId/:fileName' element={<EditorPage />} />
             <Route path='/editor/:roomId' element={<EditorPage />} />
-            <Route path='/' element={<Home />} />
+            <Route path='/home' element={<Home />} />
+            <Route path='/' element={<Login />} />
           </Routes>
         </div>
       </FileProvider>
