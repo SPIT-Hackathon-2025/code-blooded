@@ -71,7 +71,7 @@ const FolderStructure = () => {
   return (
     <div className="text-light d-flex flex-column" style={{ backgroundColor: "#010101", padding: "10px", minWidth: "250px", overflowY: "auto" }}>
       <h5 className="p-2" style={{fontWeight:600, marginTop:'20px', fontSize: "20px", color: "#0ffaf3", fontFamily:"'Montserrat', sans-serif" }}>Project Structure</h5>
-      <button onClick={addFolder} className="btn bottom-0 end-0 m-3" style={{ zIndex: 1050, backgroundColor: "#0ffaf3", fontSize: "14px", fontWeight: 500 }}>📁 Add Folder</button>
+      <button onClick={addFolder} className="btn bottom-0 end-0 m-3" style={{ zIndex: 1050, backgroundColor: "#0ffaf3", fontSize: "14px", fontWeight: 500, fontFamily: "'Montserrat', sans-serif" }}>📁 Add Folder</button>
       <div className="folder-tree" style={{fontFamily:"'Montserrat', sans-serif"}}>{renderFolderTree(folderStructure)}</div>
     </div>
   );

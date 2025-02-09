@@ -330,6 +330,29 @@ function EditorPage() {
   const roomId = useContext(TeamContext);
   const socketRef = useRef(null);
 
+  const [clientRoles, setClientRoles] = useState({});
+
+useEffect(() => {
+  // Initialize roles as "Viewer" for new clients
+  setClientRoles((prevRoles) => {
+    const newRoles = { ...prevRoles };
+    clients.forEach(client => {
+      if (!newRoles[client.socketId]) {
+        newRoles[client.socketId] = "Viewer"; 
+      }
+    });
+    return newRoles;
+  });
+}, [clients]);
+
+const updateRole = (socketId, newRole) => {
+  setClientRoles((prevRoles) => ({
+    ...prevRoles,
+    [socketId]: newRole,
+  }));
+};
+
+
   // Fetch location.state from localStorage
   const savedState = JSON.parse(localStorage.getItem('locationState'));
 
@@ -412,12 +435,24 @@ function EditorPage() {
         <div className="col-2 d-flex flex-column text-light" style={{ backgroundColor: "#14151c" }}>
           <img src="/images/logo.png" alt="Logo" className="img-fluid mx-auto" style={{ width: "300px", marginTop: "-45px", marginLeft: "30px" }} />
           <hr style={{ marginTop: "-3rem" }} />
-          <div className="d-flex flex-column flex-grow-1 overflow-auto">
+          {/* <div className="d-flex flex-column flex-grow-1 overflow-auto">
             <span className="mb-2">Members</span>
             {clients.map((client) => (
               <Client key={client.socketId} username={client.username} />
             ))}
-          </div>
+          </div> */}
+          <div className="d-flex flex-column flex-grow-1 overflow-auto">
+          <span className="mb-2">Members</span>
+          {clients.map((client) => (
+            <Client 
+              key={client.socketId} 
+              username={client.username} 
+              socketId={client.socketId} 
+              role={clientRoles[client.socketId] || "Viewer"} 
+              updateRole={updateRole} 
+            />
+          ))}
+        </div>
           <hr />
           <div className="mt-auto mb-3">
             <button className="btn w-100 mb-2" style={{ backgroundColor: "#0ffaf3", borderRadius: "15px" }} onClick={() => navigator.clipboard.writeText(roomId)}>
@@ -432,7 +467,7 @@ function EditorPage() {
         {/* Editor Panel */}
         <div className="col-8 d-flex flex-column text-light">
           <div className="p-2 d-flex justify-content-between align-items-center" style={{ backgroundColor: "#010101" }}>
-            <button className="btn" style={{ backgroundColor: "#0ffaf3", fontSize: "14px", fontWeight: 500 }} onClick={() => setIsModalOpen(true)}>
+            <button className="btn" style={{ backgroundColor: "#0ffaf3", fontSize: "14px", fontWeight: 500, fontFamily: "'Montserrat', sans-serif" }} onClick={() => setIsModalOpen(true)}>
               Commit Changes
             </button>
             <select className="form-select w-auto" value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
@@ -443,9 +478,22 @@ function EditorPage() {
           </div>
 
           {/* Code Editor - Always Fresh When File Changes */}
-          <Editor socketRef={socketRef} roomId={roomId} key={fileName}
-          onCodeChange={(code) => { codeRef.current = code; }}  />
+          {/* <Editor socketRef={socketRef} roomId={roomId} key={fileName}
+          onCodeChange={(code) => { codeRef.current = code; }}  /> */}
+            {fileName ? (
+              <Editor 
+                socketRef={socketRef} 
+                roomId={roomId} 
+                key={fileName} 
+                onCodeChange={(code) => { codeRef.current = code; }}  
+              />
+            ) : (
+              <div className="d-flex align-items-center justify-content-center flex-grow-1 text-light">
+                <h4 style={{fontFamily: "'Montserrat', sans-serif"}}>Select a file from the folder structure to start editing</h4>
+              </div>
+            )}
         </div>
+
 
         {/* Folder Structure Panel */}
         <div className="col-2 d-flex flex-column" style={{backgroundColor:'#010101'}}>
