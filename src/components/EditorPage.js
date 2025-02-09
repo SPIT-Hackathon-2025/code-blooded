@@ -391,6 +391,20 @@ function EditorPage() {
     return <Navigate to="/" />;
   }
 
+  const runCode = async () => {
+    setIsCompiling(true);
+    try {
+      const response = await executeCode(selectedLanguage, codeRef.current);
+      console.log("Execution response:", response);
+      setOutput(response.run?.output || "No output returned");
+    } catch (error) {
+      console.error("Error executing code:", error);
+      setOutput("An error occurred while executing the code.");
+    } finally {
+      setIsCompiling(false);
+    }
+  };
+
   return (
     <div className="container-fluid vh-100 d-flex flex-column" style={{ backgroundColor: "#010101", overflowX:'hidden' }}>
       <div className="row flex-grow-1">
@@ -447,7 +461,7 @@ function EditorPage() {
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5 className="m-0" style={{color:'#0ffaf3'}}>Compiler Output ({selectedLanguage})</h5>
           <div>
-            <button className="btn me-2" onClick={() => executeCode(selectedLanguage, "")} disabled={isCompiling} style={{backgroundColor:'#0ffaf3'}}>
+            <button className="btn me-2" onClick={runCode} disabled={isCompiling} style={{backgroundColor:'#0ffaf3'}}>
               {isCompiling ? "Compiling..." : "Run Code"}
             </button>
           </div>
