@@ -7,8 +7,21 @@ const GITEA_TOKEN = process.env.GITEA_TOKEN;
 
 export const createTeam = async (req, res) => {
   try {
-    const { name } = req.body; // userId = team creator
-    const userId = req.user.id
+    const { name } = req.body;
+    const userId = req.user?.id; // Ensure `req.user.id` is available
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+    const existingTeam = await prisma.team.findUnique({
+      where:{
+        name
+      }
+    });
+
+    if(existingTeam){
+      return await addUserToTeam({ body: { teamId: existingTeam.id, userId, role: "EDITOR" } }, res);
+    }
 
     // Create team in database
     const team = await prisma.team.create({
@@ -45,6 +58,9 @@ export const createTeam = async (req, res) => {
   }
 };
 
+// export const corjteam = async (req,res) => {
+
+// }
 
 /**
  * Get all teams for the logged-in user

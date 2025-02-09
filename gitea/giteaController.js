@@ -1,4 +1,6 @@
 import axios from "axios";
+import fs from "fs";
+import path from "path";
 
 const GITEA_API_URL = "http://localhost:3000/api/v1";
 const GITEA_TOKEN = process.env.GITEA_TOKEN; 
@@ -55,6 +57,93 @@ export const createFile = async (req, res) => {
 //       return res.status(500).json({ error: "Internal Server Error" });
 //     }
 // };  
+
+
+// Function to recursively get all files in a directory
+const getAllFiles = (dirPath, basePath = "") => {
+  let filesList = [];
+  const files = fs.readdirSync(dirPath);
+
+  files.forEach((file) => {
+    const filePath = path.join(dirPath, file);
+    const relativePath = path.join(basePath, file).replace(/\\/g, "/"); // Ensure proper path format
+
+    if (fs.statSync(filePath).isDirectory()) {
+      filesList = [...filesList, ...getAllFiles(filePath, relativePath)];
+    } else {
+      filesList.push({ path: relativePath, content: fs.readFileSync(filePath, "utf8") });
+    }
+  });
+
+  return filesList;
+};
+
+// Controller to commit a full folder to Gitea
+export const commitFolderToGitea = async (req, res) => {
+  try {
+    const { owner, repo, folderPath, commitMessage, authorName, authorEmail } = req.body;
+    
+    if (!fs.existsSync(folderPath)) {
+      return res.status(400).json({ error: "Folder does not exist" });
+    }
+
+    // Step 1: Get the latest commit SHA
+    const latestCommitRes = await axios.get(
+      `${GITEA_API_URL}/repos/${owner}/${repo}/git/commits/main`,
+      { headers: { Authorization: `token ${GITEA_TOKEN}` } }
+    );
+    const latestCommitSha = latestCommitRes.data.sha;
+    const latestTreeSha = latestCommitRes.data.tree.sha;
+
+    // Step 2: Get all files from the folder
+    const files = getAllFiles(folderPath);
+
+    // Step 3: Create new blobs for each file
+    const treeEntries = [];
+    for (const file of files) {
+      const blobRes = await axios.post(
+        `${GITEA_API_URL}/repos/${owner}/${repo}/git/blobs`,
+        { content: file.content, encoding: "utf-8" },
+        { headers: { Authorization: `token ${GITEA_TOKEN}` } }
+      );
+      treeEntries.push({ path: file.path, mode: "100644", type: "blob", sha: blobRes.data.sha });
+    }
+
+    // Step 4: Create a new tree
+    const treeRes = await axios.post(
+      `${GITEA_API_URL}/repos/${owner}/${repo}/git/trees`,
+      { base_tree: latestTreeSha, tree: treeEntries },
+      { headers: { Authorization: `token ${GITEA_TOKEN}` } }
+    );
+    const newTreeSha = treeRes.data.sha;
+
+    // Step 5: Create a new commit
+    const commitRes = await axios.post(
+      `${GITEA_API_URL}/repos/${owner}/${repo}/git/commits`,
+      {
+        message: commitMessage,
+        tree: newTreeSha,
+        parents: [latestCommitSha],
+        committer: { name: authorName, email: authorEmail },
+      },
+      { headers: { Authorization: `token ${GITEA_TOKEN}` } }
+    );
+    const newCommitSha = commitRes.data.sha;
+
+    // Step 6: Update branch reference to point to new commit
+    await axios.patch(
+      `${GITEA_API_URL}/repos/${owner}/${repo}/git/refs/heads/master`,
+      { sha: newCommitSha },
+      { headers: { Authorization: `token ${GITEA_TOKEN}` } }
+    );
+
+    return res.status(200).json({ message: "Folder committed successfully", commitSha: newCommitSha });
+  } catch (error) {
+    console.error("Error committing folder:", error.response?.data || error.message);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 export const commitRepoChanges = async (req, res) => {
     try {

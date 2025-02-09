@@ -7,7 +7,8 @@ import {
   fetchRepoContents,
   getCommits,
   rollbackToCommit,
-  fetchRepoContent
+  fetchRepoContent,
+  commitFolderToGitea
 } from './giteaController.js'
 
 const router = express.Router();
@@ -17,6 +18,8 @@ router.post("/create-file", createFile);
 
 // // Route to create a folder in a repo
 // router.post("/create-folder", createFolder);
+router.post("/commit-folder", commitFolderToGitea);
+
 
 // Route to commit multiple changes to a repo
 router.post("/commit-repo", commitRepoChanges);
