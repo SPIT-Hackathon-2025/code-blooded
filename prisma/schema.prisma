@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String     @id @default(uuid())
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
   username      String
   email         String
   password      String
@@ -17,51 +17,53 @@ model User {
   otpExpiration DateTime?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  Commit        Commit[]
+  commits       Commit[]
   teams         UserTeam[]
 }
 
 model Team {
-  id           String         @id @default(uuid())
-  name         String         @unique
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  CodeDocument CodeDocument[]
-  users        UserTeam[]
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  name          String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  codeDocuments CodeDocument[]
+  users         UserTeam[]
 }
 
 model UserTeam {
-  id     String @id @default(uuid())
-  userId String
-  teamId String
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  teamId String @db.ObjectId
   role   Role   @default(VIEWER)
-  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User   User   @relation(fields: [userId], references: [id])
+  Team   Team   @relation(fields: [teamId], references: [id])
 }
 
 model CodeDocument {
-  id        String   @id @default(uuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   content   String
   language  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String   @unique
-  teamId    String
-  Team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  Commit    Commit[]
+  teamId    String   @db.ObjectId
+  commits   Commit[]
+  Team      Team     @relation(fields: [teamId], references: [id])
 }
 
 model Commit {
-  id           String       @id
-  message      String
-  authorId     String
-  documentId   String
-  changes      String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime
-  content      String
-  User         User         @relation(fields: [authorId], references: [id])
-  CodeDocument CodeDocument @relation(fields: [documentId], references: [id])
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  message        String
+  authorId       String        @db.ObjectId
+  documentId     String        @db.ObjectId
+  changes        String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  content        String
+  User           User?         @relation(fields: [userId], references: [id])
+  userId         String?       @db.ObjectId
+  CodeDocument   CodeDocument? @relation(fields: [codeDocumentId], references: [id])
+  codeDocumentId String?       @db.ObjectId
 }
 
 enum Role {
@@ -69,3 +71,75 @@ enum Role {
   VIEWER
   ADMIN
 }
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+// model User {
+//   id            String     @id @default(uuid())
+//   username      String
+//   email         String
+//   password      String
+//   phone         String
+//   otp           String?
+//   otpExpiration DateTime?
+//   createdAt     DateTime   @default(now())
+//   updatedAt     DateTime   @updatedAt
+//   Commit        Commit[]
+//   teams         UserTeam[]
+// }
+
+// model Team {
+//   id           String         @id @default(uuid())
+//   name         String         @unique
+//   createdAt    DateTime       @default(now())
+//   updatedAt    DateTime       @updatedAt
+//   CodeDocument CodeDocument[]
+//   users        UserTeam[]
+// }
+
+// model UserTeam {
+//   id     String @id @default(uuid())
+//   userId String
+//   teamId String
+//   role   Role   @default(VIEWER)
+//   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+//   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
+
+// model CodeDocument {
+//   id        String   @id @default(uuid())
+//   content   String
+//   language  String
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   name      String   @unique
+//   teamId    String
+//   Team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+//   Commit    Commit[]
+// }
+
+// model Commit {
+//   id           String       @id
+//   message      String
+//   authorId     String
+//   documentId   String
+//   changes      String
+//   createdAt    DateTime     @default(now())
+//   updatedAt    DateTime
+//   content      String
+//   User         User         @relation(fields: [authorId], references: [id])
+//   CodeDocument CodeDocument @relation(fields: [documentId], references: [id])
+// }
+
+// enum Role {
+//   EDITOR
+//   VIEWER
+//   ADMIN
+// }

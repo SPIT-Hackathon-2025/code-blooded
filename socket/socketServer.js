@@ -42,7 +42,7 @@ export const setupSocketServer = (server) => {
     });
 
     socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
-      if (userRoleMap[socket.id] === "admin") {
+      if (userRoleMap[socket.id] === "ADMIN") {
         // Only admins can broadcast code changes
         socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
       } else {
