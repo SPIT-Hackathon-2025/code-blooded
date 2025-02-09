@@ -1,14 +1,15 @@
 import { Server } from "socket.io";
 import ACTIONS from "./Action.js";
 
-const userSocketMap = {};
+const userSocketMap = {}; // Stores socket ID to username mapping
+const userRoleMap = {}; // Stores socket ID to role mapping
 
-// Function to get all connected clients in a room
 const getAllConnectedClients = (roomId, io) => {
   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
     (socketId) => ({
       socketId,
       username: userSocketMap[socketId],
+      role: userRoleMap[socketId], // Include role
     })
   );
 };
@@ -24,8 +25,9 @@ export const setupSocketServer = (server) => {
   io.on("connection", (socket) => {
     console.log("Socket connected:", socket.id);
 
-    socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
+    socket.on(ACTIONS.JOIN, ({ roomId, username, role }) => {
       userSocketMap[socket.id] = username;
+      userRoleMap[socket.id] = role; // Store user role
       socket.join(roomId);
 
       const clients = getAllConnectedClients(roomId, io);
@@ -34,12 +36,21 @@ export const setupSocketServer = (server) => {
           clients,
           username,
           socketId: socket.id,
+          role,
         });
       });
     });
 
     socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
-      socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
+      if (userRoleMap[socket.id] === "admin") {
+        // Only admins can broadcast code changes
+        socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
+      } else {
+        // Notify the user that they don't have permission
+        socket.emit(ACTIONS.ERROR, {
+          message: "You do not have permission to edit this document.",
+        });
+      }
     });
 
     socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
@@ -56,9 +67,75 @@ export const setupSocketServer = (server) => {
       });
 
       delete userSocketMap[socket.id];
+      delete userRoleMap[socket.id];
       socket.leave();
     });
   });
 
-  console.log("WebSocket server initialized!");
+  console.log("WebSocket server initialized with role-based access control!");
 };
+
+// import { Server } from "socket.io";
+// import ACTIONS from "./Action.js";
+
+// const userSocketMap = {};
+
+// // Function to get all connected clients in a room
+// const getAllConnectedClients = (roomId, io) => {
+//   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
+//     (socketId) => ({
+//       socketId,
+//       username: userSocketMap[socketId],
+//     })
+//   );
+// };
+
+// export const setupSocketServer = (server) => {
+//   const io = new Server(server, {
+//     cors: {
+//       origin: "http://localhost:3000",
+//       methods: ["GET", "POST"],
+//     },
+//   });
+
+//   io.on("connection", (socket) => {
+//     console.log("Socket connected:", socket.id);
+
+//     socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
+//       userSocketMap[socket.id] = username;
+//       socket.join(roomId);
+
+//       const clients = getAllConnectedClients(roomId, io);
+//       clients.forEach(({ socketId }) => {
+//         io.to(socketId).emit(ACTIONS.JOINED, {
+//           clients,
+//           username,
+//           socketId: socket.id,
+//         });
+//       });
+//     });
+
+//     socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
+//       socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
+//     });
+
+//     socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
+//       io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
+//     });
+
+//     socket.on("disconnecting", () => {
+//       const rooms = [...socket.rooms];
+//       rooms.forEach((roomId) => {
+//         socket.in(roomId).emit(ACTIONS.DISCONNECTED, {
+//           socketId: socket.id,
+//           username: userSocketMap[socket.id],
+//         });
+//       });
+
+//       delete userSocketMap[socket.id];
+//       socket.leave();
+//     });
+//   });
+
+//   console.log("WebSocket server initialized!");
+// };

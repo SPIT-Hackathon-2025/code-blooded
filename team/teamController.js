@@ -20,7 +20,7 @@ export const createTeam = async (req, res) => {
     });
 
     if(existingTeam){
-      return await addUserToTeam({ body: { teamId: existingTeam.id, userId, role: "EDITOR" } }, res);
+      return await addUserToTeam({ body: { teamId: existingTeam.id, userId, role: "VIEWER" } }, res);
     }
 
     // Create team in database
@@ -30,7 +30,7 @@ export const createTeam = async (req, res) => {
         users: {
           create: {
             userId,
-            role: "EDITOR", // Creator is always an EDITOR
+            role: "ADMIN", // Creator is always an EDITOR
           },
         },
       },
@@ -38,20 +38,20 @@ export const createTeam = async (req, res) => {
     });
 
     // Create Gitea Repository for the Team
-    const repoName = `team-${team.id}`;
-    const giteaResponse = await axios.post(
-      `${GITEA_API_URL}/user/repos`,
-      {
-        name: repoName,
-        private: true,
-        description: `Repository for Team ${team.name}`,
-      },
-      {
-        headers: { Authorization: `token ${GITEA_TOKEN}` },
-      }
-    );
+    // const repoName = `team-${team.id}`;
+    // const giteaResponse = await axios.post(
+    //   `${GITEA_API_URL}/user/repos`,
+    //   {
+    //     name: repoName,
+    //     private: true,
+    //     description: `Repository for Team ${team.name}`,
+    //   },
+    //   {
+    //     headers: { Authorization: `token ${GITEA_TOKEN}` },
+    //   }
+    // );
 
-    return res.status(201).json({ team, giteaRepo: giteaResponse.data });
+    return res.status(201).json({ team });
   } catch (error) {
     console.error("Error creating team/repo:", error);
     return res.status(500).json({ error: "Internal Server Error" });
