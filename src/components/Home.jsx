@@ -119,13 +119,34 @@ function Home() {
 
   const navigate = useNavigate();
 
-  const generateRoomId = (e) => {
-    e.preventDefault();
-    const Id = uuid();
-    setRoomId(Id);
-    toast.success("Room ID is generated");
-  };
+  const API_URL = "http://localhost:4000/team/create"
 
+  const generateRoomId = async (e) => {
+    e.preventDefault();
+
+    try{
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODEzNzkyLTQ2NjAtNDcwOC04NjUxLWY4MDQ1MTEzYjFkZiIsImlhdCI6MTczOTA1NzQxMX0.AfsFCYIwD99FvrUAQXKUfeoukVFemYBrJuhe3Ki_LqI`//${localStorage.getItem("token")}`, // Assuming token-based auth
+        },
+        body: JSON.stringify({ name: roomId }), // Replace `teamName` with the actual variable containing the team name
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create team");
+      }
+
+      setRoomId(data.team.id);
+      toast.success("Room ID (Team) successfully created!");
+    } catch (error) {
+      toast.error(error.message || "An error occurred while creating the team.");
+    }
+  };
+    
   const joinRoom = () => {
     if (!roomId || !username) {
       toast.error("Both fields are required");
