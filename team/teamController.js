@@ -38,29 +38,29 @@ export const createTeam = async (req, res) => {
     });
 
     // Create Gitea Repository for the Team
-    const repoName = `team-${team.id}`;
-    const giteaResponse = await axios.post(
-      `${GITEA_API_URL}/user/repos`,
-      {
-        name: repoName,
-        private: true,
-        description: `Repository for Team ${team.name}`,
-      },
-      {
-        headers: { Authorization: `token ${GITEA_TOKEN}` },
-      }
-    );
+//     const repoName = `team-${team.id}`;
+//     const giteaResponse = await axios.post(
+//       `${GITEA_API_URL}/user/repos`,
+//       {
+//         name: repoName,
+//         private: true,
+//         description: `Repository for Team ${team.name}`,
+//       },
+//       {
+//         headers: { Authorization: `token ${GITEA_TOKEN}` },
+//       }
+//     );
 
-    return res.status(201).json({ team, giteaRepo: giteaResponse.data });
+    return res.status(201).json({ team });
   } catch (error) {
     console.error("Error creating team/repo:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-// export const corjteam = async (req,res) => {
+// // export const corjteam = async (req,res) => {
 
-// }
+// // }
 
 /**
  * Get all teams for the logged-in user
