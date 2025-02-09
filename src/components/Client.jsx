@@ -22,8 +22,8 @@ function Client({ username, socketId, role, updateRole }) {
             size={46} 
             round 
             textSizeRatio={1.6} 
-            fgColor="#fff"  // White text for better contrast
-            color="transparent" // Makes the Avatar background transparent so the gradient is visible
+            fgColor="#fff"
+            color="transparent"
           />
         </div>
         <span className="mx-2">{username.toString()}</span>
