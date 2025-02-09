@@ -7,8 +7,21 @@ const GITEA_TOKEN = process.env.GITEA_TOKEN;
 
 export const createTeam = async (req, res) => {
   try {
-    const { name } = req.body; // userId = team creator
-    const userId = req.user.id
+    const { name } = req.body;
+    const userId = req.user.id; 
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+    const existingTeam = await prisma.team.findUnique({
+      where:{
+        name
+      }
+    });
+
+    if(existingTeam){
+      return await addUserToTeam({ body: { teamId: existingTeam.id, userId, role: "VIEWER" } }, res);
+    }
 
     // Create team in database
     const team = await prisma.team.create({
@@ -17,7 +30,7 @@ export const createTeam = async (req, res) => {
         users: {
           create: {
             userId,
-            role: "EDITOR", // Creator is always an EDITOR
+            role: "ADMIN", // Creator is always an EDITOR
           },
         },
       },
@@ -25,26 +38,29 @@ export const createTeam = async (req, res) => {
     });
 
     // Create Gitea Repository for the Team
-    const repoName = `team-${team.id}`;
-    const giteaResponse = await axios.post(
-      `${GITEA_API_URL}/user/repos`,
-      {
-        name: repoName,
-        private: true,
-        description: `Repository for Team ${team.name}`,
-      },
-      {
-        headers: { Authorization: `token ${GITEA_TOKEN}` },
-      }
-    );
+    // const repoName = `team-${team.id}`;
+    // const giteaResponse = await axios.post(
+    //   `${GITEA_API_URL}/user/repos`,
+    //   {
+    //     name: repoName,
+    //     private: true,
+    //     description: `Repository for Team ${team.name}`,
+    //   },
+    //   {
+    //     headers: { Authorization: `token ${GITEA_TOKEN}` },
+    //   }
+    // );
 
-    return res.status(201).json({ team, giteaRepo: giteaResponse.data });
+    return res.status(201).json({ team });
   } catch (error) {
     console.error("Error creating team/repo:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+// // export const corjteam = async (req,res) => {
+
+// // }
 
 /**
  * Get all teams for the logged-in user
@@ -64,6 +80,23 @@ export const getUserTeams = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getTeamUsers = async (req, res) => {
+  try {
+    const { teamId } = req.body.teamId;
+
+    const teams = await prisma.team.findMany({
+      where: { id:teamId },
+      include: { users: { include: { user: true } } },
+    });
+
+    return res.status(200).json(teams);
+  } catch (error) {
+    console.error("Error fetching teams:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 /**
  * Add a user to a team
