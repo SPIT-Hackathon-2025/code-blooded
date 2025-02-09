@@ -7,6 +7,8 @@ import teamRouter from "./team/teamRoute.js";
 import userRouter from "./user/userRoute.js";
 import userteamRouter from "./userteam/userteamRoute.js";
 import giteaRouter from "./gitea/giteaRoute.js"
+import commitRouter from "./commits/commitRoutes.js"
+import docRouter from "./document/docRoute.js"
 
 dotenv.config();
 
@@ -20,5 +22,7 @@ app.use('/team',teamRouter)
 app.use('/user',userRouter)
 app.use('/userteam',userteamRouter)
 app.use('/gitea',giteaRouter)
+app.use('/commit',commitRouter)
+app.use('/doc',docRouter)
 
 export default app;

@@ -18,7 +18,7 @@ export const createFile = async (req, res) => {
           },
         },
         {
-          headers: { Authorization: `token ${GITEA_TOKEN}` },
+          headers: { Authorization:   `token ${GITEA_TOKEN}` },
         }
       );
   

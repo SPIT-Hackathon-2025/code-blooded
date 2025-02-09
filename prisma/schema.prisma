@@ -24,14 +24,17 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   teams         UserTeam[]
+  commits       Commit[] 
 }
 
 model Team {
   id        String     @id @default(uuid())  
-  name      String
+  name      String     @unique
   users     UserTeam[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+
+  documents CodeDocument[]
 }
 
 model UserTeam {
@@ -47,18 +50,47 @@ model UserTeam {
 enum Role {
   EDITOR
   VIEWER
+  ADMIN
 }
 
 model CodeDocument {
-  id        String   @id @default(uuid())  
-  roomId    String   @unique 
-  content   String 
-  language  String 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())  
+  name        String   @unique
+  teamId      String   // This is the foreign key linking to the Team
+  content     String 
+  language    String 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  commits     Commit[] // One CodeDocument can have many commits
 }
 
+model Commit {
+  id            String     @id @default(uuid())    // Unique ID for the commit
+  message       String     // Commit message       
+  authorId      String     // Foreign key to User who made the commit
+  author        User       @relation(fields: [authorId], references: [id]) // Relation to User
+  documentId    String     // Foreign key to the CodeDocument that was changed
+  document      CodeDocument @relation(fields: [documentId], references: [id]) // Relation to CodeDocument
+  content       String     // Content of the document at the time of this commit
+  changes       String     // Details about what changed in this commit (e.g., file paths or diffs)
+  createdAt     DateTime   @default(now())         // Timestamp when the commit is created
+  updatedAt     DateTime   @updatedAt              // Timestamp when the commit is updated
+}
 
+// model Commit {
+//   id            String     @id @default(uuid())    // Unique ID for the commit
+//   message       String     // Commit message       
+//   authorId      String     // Foreign key to User who made the commit
+//   author        User       @relation(fields: [authorId], references: [id]) // Relation to User
+//   documentId    String     // Foreign key to the CodeDocument that was changed
+//   document      CodeDocument @relation(fields: [documentId], references: [id]) // Relation to CodeDocument
+//   documentContent String  // Storing only the content of the document
+//   changes       String     // Details about what changed in this commit (e.g., file paths or diffs)
+//   createdAt     DateTime   @default(now())         // Timestamp when the commit is created
+//   updatedAt     DateTime   @updatedAt              // Timestamp when the commit is updated
+// }
 // model User {
 //   id            String     @id @default(auto()) @map("_id") @db.ObjectId
 //   username      String
