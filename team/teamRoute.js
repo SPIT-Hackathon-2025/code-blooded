@@ -13,6 +13,7 @@ const router = express.Router();
 // Team management
 router.post("/create",authenticatetoken, createTeam);
 router.get("/",authenticatetoken, getUserTeams);
+router.get("/get", getUserTeams);
 router.delete("/:teamId",deleteTeam);
 
 // User management in team

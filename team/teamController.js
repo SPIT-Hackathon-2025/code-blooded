@@ -8,7 +8,7 @@ const GITEA_TOKEN = process.env.GITEA_TOKEN;
 export const createTeam = async (req, res) => {
   try {
     const { name } = req.body;
-    const userId = req.user?.id; // Ensure `req.user.id` is available
+    const userId = req.user.id; 
 
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
@@ -80,6 +80,23 @@ export const getUserTeams = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getTeamUsers = async (req, res) => {
+  try {
+    const { teamId } = req.body.teamId;
+
+    const teams = await prisma.team.findMany({
+      where: { id:teamId },
+      include: { users: { include: { user: true } } },
+    });
+
+    return res.status(200).json(teams);
+  } catch (error) {
+    console.error("Error fetching teams:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 /**
  * Add a user to a team
