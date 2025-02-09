@@ -115,9 +115,9 @@ export const addUserToTeam = async (req, res) => {
         }
       }
     })
-    if(Existingteam){
-      return res.send("user already in team");
-    }
+    // if(Existingteam){
+    //   return res.send("user already in team");
+    // }
     const team = await prisma.team.update({
       where: { id: teamId },
       data: {
