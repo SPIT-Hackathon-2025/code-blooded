@@ -7,19 +7,25 @@ import { Toaster } from 'react-hot-toast';
 import { TeamProvider } from './components/TeamContext';
 import { FileProvider } from './components/FileContext';
 
-
 function App() {
   return (
     <TeamProvider>
       <FileProvider>
-        <div style={{ backgroundColor: '#14151a' }}>
-          <div>
+      <div
+  className="card-body text-center"
+  style={{
+    backgroundImage: "url('/images/bgimg.png')", // Use absolute path from public/
+    backgroundSize: "fit",
+    backgroundPosition: "center",
+    height: "100vh",
+  }}>
+         <div>
             <Toaster position='top-center'></Toaster>
           </div>
           <Routes>
             <Route path='/editor/:roomId/:fileName' element={<EditorPage />} />
             <Route path='/editor/:roomId' element={<EditorPage />} />
-            <Route path='/' element={<Login />} />
+            <Route path='/' element={<Home />} />
           </Routes>
         </div>
       </FileProvider>
