@@ -17,18 +17,17 @@ model User {
   otpExpiration DateTime?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+  Commit        Commit[]
   teams         UserTeam[]
-  commits       Commit[] 
 }
 
 model Team {
-  id        String     @id @default(uuid())  
-  name      String     @unique
-  users     UserTeam[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  documents CodeDocument[]
+  id           String         @id @default(uuid())
+  name         String         @unique
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  CodeDocument CodeDocument[]
+  users        UserTeam[]
 }
 
 model UserTeam {
@@ -36,68 +35,37 @@ model UserTeam {
   userId String
   teamId String
   role   Role   @default(VIEWER)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+model CodeDocument {
+  id        String   @id @default(uuid())
+  content   String
+  language  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @unique
+  teamId    String
+  Team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  Commit    Commit[]
+}
+
+model Commit {
+  id           String       @id
+  message      String
+  authorId     String
+  documentId   String
+  changes      String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime
+  content      String
+  User         User         @relation(fields: [authorId], references: [id])
+  CodeDocument CodeDocument @relation(fields: [documentId], references: [id])
 }
 
 enum Role {
   EDITOR
   VIEWER
+  ADMIN
 }
-
-model CodeDocument {
-  id        String   @id @default(uuid())  
-  roomId    String   @unique 
-  content   String 
-  language  String 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-
-// model User {
-//   id            String     @id @default(auto()) @map("_id") @db.ObjectId
-//   username      String
-//   email         String    
-//   password      String
-//   phone         String
-//   otp           String?
-//   otpExpiration DateTime?
-//   createdAt     DateTime   @default(now())
-//   updatedAt     DateTime   @updatedAt
-//   teams         UserTeam[]
-// }
-// //elecktron
-// //gitt on before closing autocommits 
-// model Team {
-//   id        String     @id @default(auto()) @map("_id") @db.ObjectId
-//   name      String
-//   users     UserTeam[]
-//   createdAt DateTime   @default(now())
-//   updatedAt DateTime   @updatedAt
-// }
-
-// model UserTeam {
-//   id     String @id @default(auto()) @map("_id") @db.ObjectId
-//   userId String @db.ObjectId
-//   teamId String @db.ObjectId
-//   role   Role   @default(VIEWER)
-
-//   user User @relation(fields: [userId], references: [id])
-//   team Team @relation(fields: [teamId], references: [id])
-// }
-
-// enum Role {
-//   EDITOR
-//   VIEWER
-// }
-
-// model CodeDocument {
-//   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-//   roomId    String   @unique 
-//   content   String 
-//   language  String 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
