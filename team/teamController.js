@@ -127,7 +127,7 @@ export const addUserToTeam = async (req, res) => {
       },
       include: { users:{
         include:{
-          user:true
+          // user:true
         }
       }  },
     });
