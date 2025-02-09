@@ -58,9 +58,9 @@ export const createTeam = async (req, res) => {
   }
 };
 
-// export const corjteam = async (req,res) => {
+// // export const corjteam = async (req,res) => {
 
-// }
+// // }
 
 /**
  * Get all teams for the logged-in user
